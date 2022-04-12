@@ -42,9 +42,12 @@ ONE, TWO, THREE, FOUR, FIVE = range(5)
 
 
 def start(update, context):
-    update.message.reply_text("Это Игровой Telegram Бот!!!\n"
-                              "Он поможет найти тебе любую нужную информацию.\n"
-                              "Для входа в бот введите команду /enter, помощь команда /help!")
+    context.bot.send_photo(update.message.chat_id, photo=open('cover.jpg', 'rb'))
+    logging.info("Sent to @%s a Cover Photo.", update.message.from_user.first_name)
+    update.message.reply_text(emojize("Это Игровой Telegram Бот!!!:love-you_gesture_light_skin_tone:\n"
+                              ":man_blond_hair:Он поможет найти тебе любую нужную информацию.\n"
+                              "Для входа в бот введите команду /enter, помощь команда /help!\n"
+                              "Если в процессе работы бота возникните ошибка, нажмите кнопку вернуться назад или попробуйте ввести команду /enter"        ))
 
 
 def enter(update, context):
