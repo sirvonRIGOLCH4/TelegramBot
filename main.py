@@ -1,5 +1,8 @@
+import math
+import random
+
 from emoji.core import emojize
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import Updater, MessageHandler, Filters
 from telegram.ext import CommandHandler, CallbackQueryHandler, ConversationHandler
 from telegram.error import BadRequest, TelegramError
@@ -39,6 +42,17 @@ message_id = 0
 
 # Данные обратного вызова
 ONE, TWO, THREE, FOUR, FIVE = range(5)
+
+
+begin_keyboard = [['/dice', '/timer']]
+dice_keyboard = [['/6', '/2x6', '/20', '/return']]
+timer_keyboard = [['/30s', '/1m', '/5m', '/return']]
+close_keyboard = [['/close']]
+
+begin_markup = ReplyKeyboardMarkup(begin_keyboard, one_time_keyboard=False)
+dice_markup = ReplyKeyboardMarkup(dice_keyboard, one_time_keyboard=False)
+timer_markup = ReplyKeyboardMarkup(timer_keyboard, one_time_keyboard=False)
+close_markup = ReplyKeyboardMarkup(close_keyboard, one_time_keyboard=False)
 
 
 def start(update, context):
@@ -161,13 +175,14 @@ def util(update, context):
 
     keyboard = [[InlineKeyboardButton('Назад', callback_data='return')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    text = 'Здесь будут различные игровые утилиты. Такие как кубик и таймер'
-
-    query.bot.edit_message_text(text, chat_id=query.message.chat_id,
-                                message_id=query.message.message_id,
-                                reply_markup=reply_markup)
-
-    return 1
+ #   text = 'Здесь будут различные игровые утилиты. Такие как кубик и таймер'
+   # query.edit_message_text(text="Ok", reply_markup=ReplyKeyboardRemove())
+   # query.bot.edit_message_text(text, chat_id=query.message.chat_id,
+   #                             message_id=query.message.message_id,
+    #                            reply_markup=reply_markup)
+    query.edit_message_text(text="Команда /dice кинуть кубики, /timer засечь время", reply_markup=reply_markup)
+    #update.message.reply_text("Команда /dice кинуть кубики, /timer засечь время", reply_markup=begin_markup)
+    return 4
 
 
 def url(update, context):
@@ -304,6 +319,71 @@ def geocoder(update, context):
     return 3
 
 
+def dice(update, context):
+    update.message.reply_text("Выберете какой кинуть кубик - 6 граней, 2 по 6, 20 или вернуться назад", reply_markup=dice_markup)
+    return 4
+
+
+def timers(update, context):
+    update.message.reply_text("Выберете время таймера - 30 сек., 1 мин., 5 мин. или вернуться назад", reply_markup=timer_markup)
+    return 4
+
+
+def dice6(update, context):
+    num = math.trunc(random.random() * 6) + 1
+    update.message.reply_text("{0}".format(num), reply_markup=ReplyKeyboardRemove())
+    return 4
+
+
+def dice2x6(update, context):
+    num1 = math.trunc(random.random() * 6) + 1
+    num2 = math.trunc(random.random() * 6) + 1
+    update.message.reply_text("{0} {1}".format(num1, num2), reply_markup=ReplyKeyboardRemove())
+    return 4
+
+
+def dice20(update, context):
+    num = math.trunc(random.random() * 20) + 1
+    update.message.reply_text("{0}".format(num), reply_markup=ReplyKeyboardRemove())
+    return 4
+
+
+def timer30(update, context):
+    begin_timer(update, context, 30)
+    return 4
+
+
+def timer60(update, context):
+    begin_timer(update, context, 60)
+    return 4
+
+
+def timer300(update, context):
+    begin_timer(update, context, 300)
+    return 4
+
+
+def begin_timer(update, context, delay):
+    job = context.job_queue.run_once(close_timer, delay, context=update.message.chat_id)
+    context.chat_data['job'] = job
+    update.message.reply_text('Засёк {0} секунд'.format(delay), reply_markup=close_markup)
+    return 4
+
+
+def close_timer(context):
+    job = context.job
+    context.bot.send_message(job.context, text='Время истекло', reply_markup=timer_markup)
+    return 4
+
+
+def unset_timer(update, context):
+    if 'job' in context.chat_data:
+        context.chat_data['job'].schedule_removal()
+        del context.chat_data['job']
+    update.message.reply_text('Хорошо, вернулся сейчас!', reply_markup=timer_markup)
+    return 4
+
+
 def main():
     updater = Updater(TOKEN, use_context=True)
 
@@ -312,7 +392,8 @@ def main():
     dp.add_handler(CommandHandler("help", help))
 
     conv_handler = ConversationHandler(
-        entry_points=[CommandHandler('enter', enter), CommandHandler('start', start)],
+        entry_points=[CommandHandler('enter', enter),
+                      CommandHandler('start', start)],
         states={  # словарь состояний разговора, возвращаемых callback функциями
             1: [CallbackQueryHandler(enter_query, pattern=r'return', pass_user_data=True),
                 CallbackQueryHandler(enter_query, pattern=r'error_return', pass_user_data=True),
@@ -337,6 +418,20 @@ def main():
                 CommandHandler('stop', stop, pass_user_data=True),
                 MessageHandler(Filters.text & ~Filters.command, geocoder)
             ],
+            4: [#CommandHandler('enter', enter_query),
+                CommandHandler("return", util, pass_user_data=True),
+                CallbackQueryHandler(enter_query, pattern=r'error_return', pass_user_data=True),
+                CommandHandler('stop', stop, pass_user_data=True),
+                CommandHandler("timer", timers),
+                CommandHandler("dice", dice),
+                CommandHandler("6", dice6),
+                CommandHandler("2x6", dice2x6),
+                CommandHandler("20", dice20),
+                CommandHandler("30s", timer30, pass_job_queue=True, pass_chat_data=True),
+                CommandHandler("1m", timer60, pass_job_queue=True, pass_chat_data=True),
+                CommandHandler("5m", timer300, pass_job_queue=True, pass_chat_data=True),
+                CommandHandler("close", unset_timer, pass_chat_data=True),
+                ],
         },
         fallbacks=[CommandHandler('stop', stop)],
     )
