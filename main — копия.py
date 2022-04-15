@@ -1,6 +1,4 @@
-from data3 import db_session
-#from data.themes import Theme
-from data3.jobs import Jobs
+from data import db_session
 
 import math
 import random
@@ -29,8 +27,7 @@ cursor = conn.cursor()
 cursor.execute('SELECT name FROM Category')
 categories = [i[0] for i in cursor.fetchall()]
 
-#db_session.global_init("db/content.db")
-db_session.global_init("db/mars_explorer.db")
+db_session.global_init("db/content.db")
 
 #cursor.execute('SELECT name FROM Menu')
 #menu = [i[0] for i in cursor.fetchall()]
@@ -118,20 +115,12 @@ def news(update, context):
     keyboard = [[InlineKeyboardButton('Назад', callback_data='return')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-  #  cursor.execute("SELECT text FROM News".format(query.data))
-  #  data_db = cursor.fetchall()
-
-    db_sess = db_session.create_session()
-  #  data_db = db_sess.query(Theme).all()
-    data_db = db_sess.query(Jobs).all()
+    cursor.execute("SELECT text FROM News".format(query.data))
+    data_db = cursor.fetchall()
 
     text = 'Вот список новостей c игрового форума:'
- #   for pos in range(len(data_db)):
-  #      text = text + f'\n{pos + 1}) {data_db[pos][0].strip()}'
-
     for pos in range(len(data_db)):
-        text = text + f'\n{pos + 1}) {data_db[pos]}'
-
+        text = text + f'\n{pos + 1}) {data_db[pos][0].strip()}'
 
     message_id = query.message.message_id
 
