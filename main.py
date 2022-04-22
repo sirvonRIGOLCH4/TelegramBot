@@ -1,6 +1,7 @@
 from data3 import db_session
 #from data.themes import Theme
 from data3.jobs import Jobs
+from data3.departments import Department
 
 import math
 import random
@@ -31,6 +32,7 @@ categories = [i[0] for i in cursor.fetchall()]
 
 #db_session.global_init("db/content.db")
 db_session.global_init("db/mars_explorer.db")
+
 
 #cursor.execute('SELECT name FROM Menu')
 #menu = [i[0] for i in cursor.fetchall()]
@@ -158,11 +160,30 @@ def forum(update, context):
 
     keyboard = [[InlineKeyboardButton('Назад', callback_data='return')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    text = 'Здесь будет информация о сообщениях на форуме'
+ #   text = 'Здесь будет информация о сообщениях на форуме'
+
+ #   query.bot.edit_message_text(text, chat_id=query.message.chat_id,
+  #                              message_id=query.message.message_id,
+ #                               reply_markup=reply_markup)
+    db_sess = db_session.create_session()
+    #  data_db = db_sess.query(Theme).all()
+    data_db = db_sess.query(Department).all()
+
+    text = 'Вот список департаментов c игрового форума:'
+    #   for pos in range(len(data_db)):
+    #      text = text + f'\n{pos + 1}) {data_db[pos][0].strip()}'
+
+    for pos in range(len(data_db)):
+        text = text + f'\n{pos + 1}) {data_db[pos]}'
+
+    message_id = query.message.message_id
 
     query.bot.edit_message_text(text, chat_id=query.message.chat_id,
                                 message_id=query.message.message_id,
                                 reply_markup=reply_markup)
+    # query.edit_message_text(text=text, reply_markup=reply_markup)
+    logging.info("Edited @%s Message FIRST state.", query.from_user.first_name)
+
     return 1
 
 
@@ -353,20 +374,20 @@ def timers(update, context):
 def dice6(update, context):
     num = math.trunc(random.random() * 6) + 1
     update.message.reply_text("{0}".format(num), reply_markup=ReplyKeyboardRemove())
-    return 4
+    return 1
 
 
 def dice2x6(update, context):
     num1 = math.trunc(random.random() * 6) + 1
     num2 = math.trunc(random.random() * 6) + 1
     update.message.reply_text("{0} {1}".format(num1, num2), reply_markup=ReplyKeyboardRemove())
-    return 4
+    return 1
 
 
 def dice20(update, context):
     num = math.trunc(random.random() * 20) + 1
     update.message.reply_text("{0}".format(num), reply_markup=ReplyKeyboardRemove())
-    return 4
+    return 1
 
 
 def timer30(update, context):
