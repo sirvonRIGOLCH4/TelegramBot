@@ -52,7 +52,6 @@ message_id = 0
 # Данные обратного вызова
 ONE, TWO, THREE, FOUR, FIVE = range(5)
 
-
 begin_keyboard = [['/dice', '/timer']]
 dice_keyboard = [['/6', '/2x6', '/20', '/return']]
 timer_keyboard = [['/30s', '/1m', '/5m', '/return']]
