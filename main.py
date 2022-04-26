@@ -1,7 +1,9 @@
-from data3 import db_session
-#from data.themes import Theme
-from data3.jobs import Jobs
-from data3.departments import Department
+#from data3 import db_session
+from data import db_session
+from data.news import News
+from data.users import User
+#from data3.jobs import Jobs
+#from data3.departments import Department
 
 import math
 import random
@@ -30,8 +32,8 @@ cursor = conn.cursor()
 cursor.execute('SELECT name FROM Category')
 categories = [i[0] for i in cursor.fetchall()]
 
-#db_session.global_init("db/content.db")
-db_session.global_init("db/mars_explorer.db")
+db_session.global_init("db/content.db")
+#db_session.global_init("db/mars_explorer.db")
 
 
 #cursor.execute('SELECT name FROM Menu')
@@ -124,7 +126,8 @@ def news(update, context):
 
     db_sess = db_session.create_session()
   #  data_db = db_sess.query(Theme).all()
-    data_db = db_sess.query(Jobs).all()
+  # data_db = db_sess.query(Jobs).all()
+    data_db = db_sess.query(News).all()
 
     text = 'Вот список новостей c игрового форума:'
  #   for pos in range(len(data_db)):
@@ -146,6 +149,8 @@ def news(update, context):
 
 
 def forum(update, context):
+    global data_db, message_id
+
     query = update.callback_query
     variant = query.data
     # `CallbackQueries` требует ответа, даже если
@@ -166,9 +171,10 @@ def forum(update, context):
  #                               reply_markup=reply_markup)
     db_sess = db_session.create_session()
     #  data_db = db_sess.query(Theme).all()
-    data_db = db_sess.query(Department).all()
+    #data_db = db_sess.query(Department).all()
+    data_db = db_sess.query(User).all()
 
-    text = 'Вот список департаментов c игрового форума:'
+    text = 'Вот список пользователей c игрового форума:'
     #   for pos in range(len(data_db)):
     #      text = text + f'\n{pos + 1}) {data_db[pos][0].strip()}'
 
