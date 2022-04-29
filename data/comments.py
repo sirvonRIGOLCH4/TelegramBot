@@ -20,3 +20,6 @@ class Comment(SqlAlchemyBase):
     user_id = sqlalchemy.Column(sqlalchemy.Integer,
                                 sqlalchemy.ForeignKey("users.id"))
     user = orm.relation('User')
+
+    def __repr__(self):
+        return f'<Comment> {self.id} {self.title} {self.main_theme_id} {self.user_id}'

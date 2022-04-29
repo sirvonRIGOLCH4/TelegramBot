@@ -16,3 +16,6 @@ class Theme(SqlAlchemyBase):
     user_id = sqlalchemy.Column(sqlalchemy.Integer,
                                 sqlalchemy.ForeignKey("users.id"))
     user = orm.relation('User')
+
+    def __repr__(self):
+        return f'<Theme> {self.id} {self.title} {self.user_id}'
