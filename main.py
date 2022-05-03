@@ -189,8 +189,8 @@ def forum(update, context):
     data_db = db_sess.query(User).all()
 
     text = 'Вот список пользователей c игрового форума:'
-    #   for pos in range(len(data_db)):
-    #      text = text + f'\n{pos + 1}) {data_db[pos][0].strip()}'
+ #   for pos in range(len(data_db)):
+ #      text = text + f'\n{pos + 1}) {data_db[pos][0].strip()}'
 
     for pos in range(len(data_db)):
         text = text + f'\n{pos + 1}) {data_db[pos]}'
