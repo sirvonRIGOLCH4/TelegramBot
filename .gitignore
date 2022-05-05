@@ -1,0 +1,11 @@
+/data3/
+/data3/__all_models.py
+/data3/db_session.py
+/data3/departform.py
+/data3/departments.py
+/data3/jobform.py
+/data3/jobs.py
+/data3/loginform.py
+/data3/register.py
+/data3/users.py
+/db/mars_explorer.db
